@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+        }
+       .images {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: space-between; /* Evenly space the image containers */
+        }
+
+        .image-container {
+            text-align: center; /* Centers the text below the image */
+            width: 30%; /* Adjust the width to control how many images fit per row */
+        }
+
+        .image-container img {
+            width: 100%; /* Ensures the image takes up the full width of its container */
+            height: auto;
+        }
+
+        .image-container p {
+            margin-top: 10px; /* Adds some space between the image and the text */
+            font-size: 14px; /* Adjusts text size */
+            color: #333; /* Text color */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Campaign Generator</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="theme">Campaign Theme:</label>
+                <input type="text" id="theme" name="theme" value="{{theme}}" placeholder="e.g. 15% off Winter Sale" required>
+            </div>
+            <div class="form-group">
+                <label for="partner_type">Partner Type:</label>
+                <input type="text" id="partner_type" value="{{partner_type}}" name="partner_type" placeholder="e.g. Airline" required>
+            </div>
+            <div class="form-group">
+                <label for="targeting_themes">Targeting Themes (comma-separated):</label>
+                <input type="text" id="targeting_themes" value="{{targeting_themes}}" name="targeting_themes" placeholder="e.g. skiing, snowboarding">
+            </div>
+
+
+            <button name=action value="new" type="submit">Generate Campaign (Claude/Stability)</button>
+            <button name=action value="newnova" type="submit">Generate Campaign (Nova)</button>
+
+        </form>
+
+        <form method="post">
+            <input type="hidden" name="action" value="reimage">
+            <input type="hidden" name="partner_type" value="{{partner_type}}">
+            <input type="hidden" name="theme" value="{{theme}}">
+            <input type="hidden" name="targeting_themes" value="{{targeting_themes}}">
+        {% if friendly_model_name %}
+        <h2>Model: {{ friendly_model_name }}</h2>
+        {% endif %}
+        {% if headlines %}
+        <div class="result">
+            <h2>Generated Headlines</h2>
+            <ul>
+                {% for headline in headlines %}
+                <li>{{ headline }}</li>
+                <input type="hidden" name="headlines" value="{{ headline }}">
+                {% endfor %}
+            </ul>
+
+            <h2>Generated Marketing Blurbs</h2>
+            <ul>
+                {% for blurb in blurbs %}
+                <li>{{ blurb }}</li>
+                <input type="hidden" name="blurbs" value="{{ blurb }}">
+
+                {% endfor %}
+            </ul>
+            {% if hotels %}
+            <h2>Hotel List</h2>
+            <ul>
+                {% for hotel in hotels %}
+                <li>{{ hotel }}</li>
+
+                {% endfor %}
+            </ul>
+            {%endif%}
+
+            <h2>Best Matched Image</h2>
+            <div class="images">
+                {% for image in chosen_image %}
+                <div class="image-container">
+                   <img src="{{image}}">
+                </div>
+                {% endfor %}
+
+            </div>
+            <h2>Generated Images</h2>
+                <div class="images">
+                {% for image in images %}
+                <div class="image-container">
+                    <img src="{{ image }}" alt="Campaign Image">
+                    <input type="hidden" name="images" value="{{ image }}">
+
+                    <br>
+                    <input type="text" name="prompts[{{image}}]" value="{{ prompts[image] }}"><button type="submit" name="imageid" value="{{image}}">Tweak Image</button> <button type="submit" name="newimageid" value="{{image}}">New Image</button>
+                    <br>
+                    {{ realisms[image]}}
+
+                </div>
+                {% endfor %}
+            </form>
+
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
